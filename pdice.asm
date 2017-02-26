@@ -85,7 +85,7 @@ roll1:	plo	dice
 	ldi	20h
 roll2:	phi	dice
 
-roll3:	b4	roll		; continue rolling until INPUT button released
+roll3:
 
 ; update display bitmap for left die
 	glo	dice
@@ -103,6 +103,7 @@ roll3:	b4	roll		; continue rolling until INPUT button released
 
 	sep	decpc		; call die decoder
 
+	b4	roll		; continue rolling until INPUT button released
 	br	main
 
 ; ----------------------------------------------------------------------
