@@ -210,15 +210,14 @@ disp:	glo	dmareg		; 23-24
 	bnz	disp
 ; display 7th pixel row (even if the above bnz is taken)
 
+; display blank rows until PIXIE drives EF1 high
 	glo	dmareg
-	sex	sp	; no-op
-	sex	sp	; no-op
-; display first blank row
 
-blank:	plo	dmareg
-	sex	sp	; no-op
-	bn1	blank
-; display more blank rows until PIXIE drives EF1 high
+blank1:	plo	dmareg
+	bn1	blank1
+
+blank2:	plo	dmareg
+	b1	blank2
 
 	br	intret
 
