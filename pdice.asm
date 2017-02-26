@@ -163,7 +163,7 @@ int:	nop			;  0- 2  3 cyc instr for pgm sync
 	dec	sp		;  7- 8  d -> stack
 	str	sp		;  9-10
 
-	ldi	10		; 11-12  set line counter
+	ldi	9		; 11-12  set line counter
 	plo	pixrow		; 13-14
 
 	if	0
