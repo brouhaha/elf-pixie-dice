@@ -166,8 +166,15 @@ int:	nop			;  0- 2  3 cyc instr for pgm sync
 	ldi	10		; 11-12  set line counter
 	plo	pixrow		; 13-14
 
+	if	0
+; setting high byte of dmareg (R0) unnecessary, it's already 0
 	ldi	dismem>>8	; 15-16
 	phi	dmareg		; 17-18
+	else
+	sex	sp		; 15-16  no-op
+	sex	sp		; 17-18  no-op
+	endif
+
 	ldi	dismem&0ffh	; 19-20
 	plo	dmareg		; 21-22
 
