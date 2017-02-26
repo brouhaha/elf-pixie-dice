@@ -70,7 +70,7 @@ main:	inp	1		; enable PIXIE
 
 mainlp:	bn4	mainlp		; wait for INPUT button to be pressed
 
-; roll first die
+; roll left die
 roll:	glo	dice
 	shr
 	bnf	roll1
@@ -78,7 +78,7 @@ roll:	glo	dice
 roll1:	plo	dice
 	bnf	roll3
 
-; now roll second die
+; roll right die (if left die wrapped around)
 	ghi	dice
 	shr
 	bnf	roll2
@@ -93,7 +93,7 @@ roll3:
 	ldi	dismem		; frame buffer, no offset (left side)
 	plo	dbase
 
-	sep	decpc		; call die decoder
+	sep	decpc		; call die-to-pixel decoder
 
 ; update display bitmap for right die
 	ghi	dice
@@ -101,10 +101,10 @@ roll3:
 	ldi	dismem+4	; frame buffer, offset of 4 (right side)
 	plo	dbase
 
-	sep	decpc		; call die decoder
+	sep	decpc		; call die-to-pixel decoder
 
 	b4	roll		; continue rolling until INPUT button released
-	br	main
+	br	mainlp
 
 ; ----------------------------------------------------------------------
 
@@ -178,7 +178,7 @@ int:	nop			;  0- 2  3 cyc instr for pgm sync
 	ldi	dismem&0ffh	; 19-20
 	plo	dmareg		; 21-22
 
-disp:	glo	dmareg		; 23-24
+disp:	glo	dmareg		; 23-24  save pointer to start of this line
 	sex	sp		; 25-26  no-op
 	sex	sp		; 27-28  no-op
 ; display 0th pixel row
