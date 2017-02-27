@@ -68,25 +68,7 @@ reset:	ghi	dmareg
 
 main:	inp	1		; enable PIXIE
 
-mainlp:	bn4	mainlp		; wait for INPUT button to be pressed
-
-; roll left die
-roll:	glo	dice
-	shr
-	bnf	roll1
-	ldi	20h
-roll1:	plo	dice
-	bnf	roll3
-
-; roll right die (if left die wrapped around)
-	ghi	dice
-	shr
-	bnf	roll2
-	ldi	20h
-roll2:	phi	dice
-
-roll3:
-
+mainlp:
 ; update display bitmap for left die
 	glo	dice
 	plo	die
@@ -103,7 +85,22 @@ roll3:
 
 	sep	decpc		; call die-to-pixel decoder
 
-	b4	roll		; continue rolling until INPUT button released
+	bn4	mainlp		; if INPUT button not pressed, done
+
+; roll left die
+roll:	glo	dice
+	shr
+	bnf	roll1
+	ldi	20h
+roll1:	plo	dice
+	bnf	mainlp
+
+; roll right die (if left die wrapped around)
+	ghi	dice
+	shr
+	bnf	roll2
+	ldi	20h
+roll2:	phi	dice
 	br	mainlp
 
 ; ----------------------------------------------------------------------
