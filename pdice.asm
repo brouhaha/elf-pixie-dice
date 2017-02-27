@@ -34,7 +34,7 @@ tptr	equ	11	; r11:   die pattern table pointer
 dice	equ	14	; r14.0: first die,  one-hot, bits 0-5
 			; r14.1: second die, one-hot, bits 0-5
 
-pixrow	equ	15	; r15: pixel row counter
+rowcnt	equ	15	; r15: pixel row counter
 
 
 reset:	ghi	dmareg
@@ -163,8 +163,8 @@ int:	nop			;  0- 2  3 cyc instr for pgm sync
 	dec	sp		;  7- 8  d -> stack
 	str	sp		;  9-10
 
-	ldi	9		; 11-12  set line counter
-	plo	pixrow		; 13-14
+	ldi	numl		; 11-12  set line counter
+	plo	rowcnt		; 13-14
 
 	if	0
 ; setting high byte of dmareg (R0) unnecessary, it's already 0
@@ -209,12 +209,12 @@ disp:	glo	dmareg		; 23-24  save pointer to start of this line
 ; display 5th pixel row
 
 	plo	dmareg
-	dec	pixrow
+	dec	rowcnt
 	sex	sp	; no-op
 ; display 6th pixel row
 
 	plo	dmareg
-	glo	pixrow
+	glo	rowcnt
 	bnz	disp
 ; display 7th pixel row (even if the above bnz is taken)
 
@@ -255,4 +255,8 @@ dismem:	db	0ffh,0ffh,0ffh,0c0h,0ffh,0ffh,0ffh,0c0h
 	db	0c0h,000h,000h,0c0h,0c0h,000h,000h,0c0h
 	db	0c0h,000h,000h,0c0h,0c0h,000h,000h,0c0h
 	db	0ffh,0ffh,0ffh,0c0h,0ffh,0ffh,0ffh,0c0h
+
+numl	equ	($-dismem)/8
+
+; blank line used for remainder of display:
 	db	000h,000h,000h,000h,000h,000h,000h,000h
