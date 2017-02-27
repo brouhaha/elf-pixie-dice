@@ -31,18 +31,23 @@ bitmap	equ	9	; r9:    working bitmap pointer
 die	equ	10	; r10.0: die being updated in display
 tptr	equ	11	; r11:   die pattern table pointer
 
-dice	equ	14	; r14.0: first die,  one-hot, bits 0-5
-			; r14.1: second die, one-hot, bits 0-5
+dice	equ	14	; r14.0: left die,  one-hot, bits 0-5
+			; r14.1: right die, one-hot, bits 0-5
 
 rowcnt	equ	15	; r15: pixel row counter
 
+; ----------------------------------------------------------------------
+
+; initialization
 
 reset:	ghi	dmareg
 
 	plo	sp		; sp = 0x??00
 	dec	sp		; sp = 0x??ff
+
+; for an Elf with only 256 bytes of RAM (undecoded), the following
+; sequence of phi instructions could be omitted
 	phi	sp		; sp = 0x00ff
-	
 	phi	intpc
 	phi	mainpc
 	phi	decpc
@@ -59,14 +64,18 @@ reset:	ghi	dmareg
 	ldi	int&0ffh	; interrupt program counter
 	plo	intpc
 
-	ldi	01h
-	plo	dice
-	phi	dice
+	ldi	01h		; start dice both as 1 (snake eyes)
+	plo	dice		; left die
+	phi	dice		; right die
 
 	sep	3		; switch to main program counter,
 				; to free R0 up for display DMA
 
 main:	inp	1		; enable PIXIE
+
+; ----------------------------------------------------------------------
+
+; main loop
 
 mainlp:
 ; update display bitmap for left die
@@ -148,7 +157,7 @@ pixel:	str	bitmap
 
 intret:
 	ldxa		; restore D
-	ret		; return
+	ret		; return, restoring X and P, and reenabling interrupt
 
 ; PIXIE display interrupt routine
 
@@ -226,6 +235,7 @@ blank2:	plo	dmareg
 
 	br	intret
 
+; ----------------------------------------------------------------------
 
 ; bitmap update table
 ; five entries, each having bytes (in order)
@@ -242,6 +252,12 @@ table:	db	010h,038h,0c0h,0c3h	; top    left,   4-6
 	db	032h,038h,000h,030h	; bottom right,  4-6
 	db	000h
 
+; ----------------------------------------------------------------------
+
+; display frame buffer
+; eight bytes per display line (64 pixels)
+; initially only contains die outlines; pips will be
+; added at runtime
 
 dismem:	db	0ffh,0ffh,0ffh,0c0h,0ffh,0ffh,0ffh,0c0h
 	db	0c0h,000h,000h,0c0h,0c0h,000h,000h,0c0h
