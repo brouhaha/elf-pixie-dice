@@ -78,6 +78,9 @@ main:	inp	1		; enable PIXIE
 ; main loop
 
 mainlp:
+	bnq	roll
+	req
+
 ; update display bitmap for left die
 	glo	dice
 	plo	die
@@ -94,10 +97,10 @@ mainlp:
 
 	sep	decpc		; call die-to-pixel decoder
 
-	bn4	mainlp		; if INPUT button not pressed, done
+roll:	bn4	mainlp		; if INPUT button not pressed, done
 
 ; roll left die
-roll:	glo	dice
+	glo	dice
 	shr
 	bnf	roll1
 	ldi	20h
@@ -172,17 +175,12 @@ int:	nop			;  0- 2  3 cyc instr for pgm sync
 	ldi	numl		; 11-12  set line counter
 	plo	rowcnt		; 13-14
 
-	if	0
 ; setting high byte of dmareg (R0) unnecessary, it's already 0
-	ldi	dismem>>8	; 15-16
-	phi	dmareg		; 17-18
-	else
-	sex	sp		; 15-16  no-op
-	sex	sp		; 17-18  no-op
-	endif
+	ldi	dismem&0ffh	; 15-16
+	plo	dmareg		; 17-18
 
-	ldi	dismem&0ffh	; 19-20
-	plo	dmareg		; 21-22
+	seq			; 19-20  set frame flag
+	sex	sp		; 21-22  no-op
 
 disp:	glo	dmareg		; 23-24  save pointer to start of this line
 	sex	sp		; 25-26  no-op
